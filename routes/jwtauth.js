@@ -1,24 +1,45 @@
-const router=require("express").Router()
-const pool=require("../db")
-const bcrypt=require("bcrypt")
-const jwtGenerator=require("../utils/jwtgenerator")
-const validation=require("../middlewares/validation")
-const authorization = require("../middlewares/authorization")
-/**
- * @swagger
- * /:
- * get:
- * summary:This api is use to register and login
- * description:This api is use to register and login
- * 200:
- * description:To test get Method
- *
- */
+import {config} from "dotenv";
+import mg from "mailgun-js"
+import {pool} from "../db.js"
+import bcrypt from "bcrypt"
+import {jwtGenerator} from "../utils/jwtgenerator.js" 
+import {validation} from "../middlewares/validation.js"
+// import authorization from "../middlewares/authorization.js"
+import { Router } from "express";
+import cors from "cors"
+
+config();
+//maligun
+const mailgun=()=>mg({
+    apiKey:process.env.MAILGUN_API,
+    domain:process.env.MAILGUN_DOMAIN
+})
+const router = Router();
+
 
 router.post("/register",validation,async(req,res)=>{
     try {
             //1.destructure user
-const {name,email,password}=req.body;
+const {name,email,password}=req.body,
+emailInfo={
+    from:'"Siva Raman"<sivaraman9344043151@gmail.com>',
+    to:`${email}`,
+    subject:`${name}`,
+    html:"successfully register...!"
+}
+
+mailgun().messages().send(emailInfo,(err,body)=>{
+    if(err)
+        {
+            console.log(err);
+         return   res.status(500).json({
+                message:"something went wrong in sending email  "
+            })
+        }
+        else{
+          return  res.json({message:"Email send successfully..."})
+        }
+})
     //2.check whether user exist or not
     const user=await pool.query("select * from register where email=$1",[email])
     if(user.rows.length !== 0)
@@ -42,7 +63,26 @@ res.json({token})
 router.post("/login",validation,async(req,res)=>{
     try {
 //1. destructure        
-const {email,password}=req.body;
+const {email,password}=req.body,
+emailInfo={
+    from:'"Siva Raman"<sivaraman9344043151@gmail.com>',
+    to:`${email}`,
+    subject:"Login ",
+    html:"successfully Login...!"
+}
+console.log("login");
+mailgun().messages().send(emailInfo,(err,body)=>{
+    if(err)
+        {
+            console.log(err);
+          return  res.status(500).json({
+                message:"something went wrong in sending email  "
+            })
+        }
+        else{
+           return  res.json({message:"Email send successfully..."})
+        }
+})
 //2. chech if the user already exist or not
 const user=await pool.query("select * from  register where email=$1",[email])
 if (user.rows.length === 0)
@@ -63,12 +103,11 @@ res.json({Token})
     }
 })
 
-router.get("/verify",authorization,(req,res)=>{
+router.get("/verify",(req,res)=>{
     try {
         res.json(true)
     } catch (error) {
         console.error(error);
     }
 })
-
-module.exports=router;
+export default router;

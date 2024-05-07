@@ -14,9 +14,12 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
+    "mailgun-js": "^0.22.0",
+    "mailgun.js": "^10.2.1",
     "pg": "^8.11.5",
     "swagger": "^0.7.5",
     "swagger-jsdoc": "^6.0.0",
     "swagger-ui-express": "^5.0.0"
-  }
+  },
+  "type": "module"
 }

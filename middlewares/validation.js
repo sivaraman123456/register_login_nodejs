@@ -1,4 +1,4 @@
-module.exports=(req,res,next)=>{
+export const validation=(req,res,next)=>{
 
     const {name,email,password}=req.body;
 
@@ -19,6 +19,17 @@ module.exports=(req,res,next)=>{
            return res.json("Invalid email")
         }
 
-    }
+    } else if(req.path==="/login")
+        {
+            if(![email,password].every(Boolean))
+            {
+               return  res.json("Missing credential")
+            }
+            else if(!validEmail(email))
+            {
+               return res.json("Invalid email")
+            }
+    
+        }
  next();  
 }

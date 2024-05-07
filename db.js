@@ -1,5 +1,7 @@
-const Pool=require("pg").Pool
-const pool=new Pool(
+
+import pg from "pg"
+
+export const pool=new pg.Pool(
     {
     user:"postgres",
     password:"root",
@@ -9,4 +11,3 @@ const pool=new Pool(
 
     }
 );
-module.exports=pool;
